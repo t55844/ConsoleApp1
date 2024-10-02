@@ -20,6 +20,7 @@ partial class Program
         Console.WriteLine("Hello, World!");*/
 
         SP_AddOrder addOrder = new SP_AddOrder();
+        addOrder.setOrderInformation();
         addOrder.getData();
     }
 }

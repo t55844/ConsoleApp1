@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using SQL;
 using System.Data;
+using System.Reflection;
 using System.Reflection.PortableExecutable;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 /*
 USE BikeStores
@@ -37,15 +39,64 @@ namespace AddOrder
     {
         private string procedureName = "AddOrder";
 
-        public SP_AddOrder()
+        private string CUS_FIR_NAME { get; set; }
+        private string CUS_LAS_NAME { get; set; }
+        private string STORE_NAME { get; set; }
+        private string STAF_FIR_NAME { get; set; }
+        private string STAF_LAS_NAME { get; set; }
+        private string ORDER_STATUS { get; set; }
+        private string ORDER_DATE { get; set; }
+        private string REQUIRED_DATE { get; set; }
+        private string SHIPPED_DATE { get; set; }
+        private string PRODUCT_NAME { get; set; }
+        private string DISCOUNT { get; set; }
+        private string QUANTITY { get; set; }
+
+        public void setOrderInformation()
         {
+            Console.WriteLine("Order information");
+            Console.Write("Customer First Name: ");
+            CUS_FIR_NAME = Console.ReadLine();
+
+            Console.Write("Customer Last Name: ");
+            CUS_LAS_NAME = Console.ReadLine();
+
+            Console.Write("Product Name: ");
+            PRODUCT_NAME = Console.ReadLine();
+
+            Console.Write("Discount: ");
+            DISCOUNT = Console.ReadLine();
+
+            Console.Write("Quantity: ");
+            QUANTITY = Console.ReadLine();
+
+            Console.Write("Store Name: ");
+            STORE_NAME = Console.ReadLine();
+
+            Console.Write("Staff First Name: ");
+            STAF_FIR_NAME = Console.ReadLine();
+
+            Console.Write("Staff Last Name: ");
+            STAF_LAS_NAME = Console.ReadLine();
+
+            Console.Write("Order Status: ");
+            ORDER_STATUS = Console.ReadLine();
+
+            Console.Write("Order Date: ");
+            ORDER_DATE = Console.ReadLine();
+
+            Console.Write("Required Date: ");
+            REQUIRED_DATE = Console.ReadLine();
+
+            Console.Write("Shipped Date: ");
+            SHIPPED_DATE = Console.ReadLine();
         }
 
         public class Order
         {
             public int OrderId { get; set; }
             public int CustomerId { get; set; }
-            public short OrderStatus { get; set; }
+            public string OrderStatus { get; set; }
             public DateTime OrderDate { get; set; }
             public DateTime? RequiredDate { get; set; }
             public DateTime? ShippedDate { get; set; }
@@ -53,9 +104,18 @@ namespace AddOrder
             public int StaffId { get; set; }
             public int ItemId { get; set; }
             public int ProductId { get; set; }
-            public short Quantity { get; set; }
-            public float ListPrice { get; set; }
-            public float Discount { get; set; }
+            public int Quantity { get; set; }
+            public decimal ListPrice { get; set; }
+            public decimal Discount { get; set; }
+
+            public  string orderInString()
+            {
+                return $"OrderId: {OrderId}, CustomerId: {CustomerId}, OrderStatus: {OrderStatus}, " +
+                       $"OrderDate: {OrderDate}, RequiredDate: {RequiredDate?.ToString() ?? "null"}, " +
+                       $"ShippedDate: {ShippedDate?.ToString() ?? "null"}, StoreId: {StoreId}, " +
+                       $"StaffId: {StaffId}, ItemId: {ItemId}, ProductId: {ProductId}, " +
+                       $"Quantity: {Quantity}, ListPrice: {ListPrice}, Discount: {Discount}";
+            }
         }
 
         private Order ReadOrder(SqlDataReader reader)
@@ -79,7 +139,7 @@ namespace AddOrder
             {
                 OrderId = reader.GetInt32(reader.GetOrdinal("order_id")),
                 CustomerId = reader.GetInt32(reader.GetOrdinal("customer_id")),
-                OrderStatus = reader.GetInt16(reader.GetOrdinal("order_status")),
+                OrderStatus = reader.GetString(reader.GetOrdinal("order_status")),
                 OrderDate = reader.GetDateTime(reader.GetOrdinal("order_date")),
                 RequiredDate = reader.IsDBNull(reader.GetOrdinal("required_date")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("required_date")),
                 ShippedDate = reader.IsDBNull(reader.GetOrdinal("shipped_date")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipped_date")),
@@ -87,12 +147,49 @@ namespace AddOrder
                 StaffId = reader.GetInt32(reader.GetOrdinal("staff_id")),
                 ItemId = reader.GetInt32(reader.GetOrdinal("item_id")),
                 ProductId = reader.GetInt32(reader.GetOrdinal("product_id")),
-                Quantity = reader.GetInt16(reader.GetOrdinal("quantity")),
-                ListPrice = reader.GetFloat(reader.GetOrdinal("list_price")),
-                Discount = reader.GetFloat(reader.GetOrdinal("discount"))
+                Quantity = reader.GetInt32(reader.GetOrdinal("quantity")),
+                ListPrice = reader.GetDecimal(reader.GetOrdinal("list_price")),
+                Discount = reader.GetDecimal(reader.GetOrdinal("discount"))
             };
+            /* Int32 order_id = rdr.GetInt32(rdr.GetOrdinal("order_id"));
+             Console.WriteLine("order_id" + order_id);
 
-           
+             Int32 customerId = rdr.GetInt32(rdr.GetOrdinal("customer_id"));
+             Console.WriteLine("customerId: " + customerId);
+
+             string orderStatus = rdr.GetString(rdr.GetOrdinal("order_status"));
+             Console.WriteLine("orderStatus: " + orderStatus);
+
+             DateTime orderDate = rdr.GetDateTime(rdr.GetOrdinal("order_date"));
+             Console.WriteLine("orderDate: " + orderDate);
+
+             DateTime? requiredDate = rdr.IsDBNull(rdr.GetOrdinal("required_date")) ? (DateTime?)null : rdr.GetDateTime(rdr.GetOrdinal("required_date"));
+             Console.WriteLine("requiredDate: " + (requiredDate.HasValue ? requiredDate.Value.ToString() : "null"));
+
+             DateTime? shippedDate = rdr.IsDBNull(rdr.GetOrdinal("shipped_date")) ? (DateTime?)null : rdr.GetDateTime(rdr.GetOrdinal("shipped_date"));
+             Console.WriteLine("shippedDate: " + (shippedDate.HasValue ? shippedDate.Value.ToString() : "null"));
+
+             Int32 storeId = rdr.GetInt32(rdr.GetOrdinal("store_id"));
+             Console.WriteLine("storeId: " + storeId);
+
+             Int32 staffId = rdr.GetInt32(rdr.GetOrdinal("staff_id"));
+             Console.WriteLine("staffId: " + staffId);
+
+             Int32 itemId = rdr.GetInt32(rdr.GetOrdinal("item_id"));
+             Console.WriteLine("itemId: " + itemId);
+
+             Int32 productId = rdr.GetInt32(rdr.GetOrdinal("product_id"));
+             Console.WriteLine("productId: " + productId);
+
+             Int32 quantity = rdr.GetInt32(rdr.GetOrdinal("quantity"));
+             Console.WriteLine("quantity: " + quantity);
+
+             Decimal listPrice = rdr.GetDecimal(rdr.GetOrdinal("list_price"));
+             Console.WriteLine("listPrice: " + listPrice);
+
+             Decimal discount = rdr.GetDecimal(rdr.GetOrdinal("discount"));
+             Console.WriteLine("discount: " + discount);*/
+
 
             return order;
         }
@@ -111,73 +208,51 @@ namespace AddOrder
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     // Customer Information
-                    addSqlParam("@CUS_FIR_NAME", SqlDbType.NVarChar, "Debra", cmd);
-                    addSqlParam("@CUS_LAS_NAME", SqlDbType.NVarChar, "Burks", cmd);
-                    addSqlParam("@STORE_NAME", SqlDbType.NVarChar, "Santa Cruz Bikes", cmd);
-                    addSqlParam("@STAF_FIR_NAME", SqlDbType.NVarChar, "Fabiola", cmd);
-                    addSqlParam("@STAF_LAS_NAME", SqlDbType.NVarChar, "Jackson", cmd);
+                    addSqlParam("@CUS_FIR_NAME", SqlDbType.NVarChar, CUS_FIR_NAME, cmd);
+                    addSqlParam("@CUS_LAS_NAME", SqlDbType.NVarChar, CUS_LAS_NAME, cmd);
+                    addSqlParam("@STORE_NAME", SqlDbType.NVarChar, STORE_NAME, cmd);
+                    addSqlParam("@STAF_FIR_NAME", SqlDbType.NVarChar, STAF_FIR_NAME, cmd);
+                    addSqlParam("@STAF_LAS_NAME", SqlDbType.NVarChar, STAF_LAS_NAME, cmd);
 
                     // Order Data
-                    addSqlParam("@ORDER_STATUS", SqlDbType.Int, 4, cmd);
-                    addSqlParam("@ORDER_DATE", SqlDbType.Date, "2024-9-12", cmd);
-                    addSqlParam("@REQUIRED_DATE", SqlDbType.Date, "2024-9-17", cmd);
-                    addSqlParam("@SHIPPED_DATE", SqlDbType.Date, "2024-9-16", cmd);
+                    addSqlParam("@ORDER_STATUS", SqlDbType.Int, ORDER_STATUS, cmd);
+                    addSqlParam("@ORDER_DATE", SqlDbType.Date, ORDER_DATE, cmd);
+                    addSqlParam("@REQUIRED_DATE", SqlDbType.Date, REQUIRED_DATE, cmd);
+                    addSqlParam("@SHIPPED_DATE", SqlDbType.Date, SHIPPED_DATE, cmd);
 
                     // Item Order
-                    addSqlParam("@PRODUCT_NAME", SqlDbType.NVarChar, "Trek 820 - 2016", cmd);
-                    addSqlParam("@DISCOUNT", SqlDbType.Float, 0.15, cmd);
-                    addSqlParam("@QUANTITY", SqlDbType.Int, 1, cmd);
+                    addSqlParam("@PRODUCT_NAME", SqlDbType.NVarChar, PRODUCT_NAME, cmd);
+                    addSqlParam("@DISCOUNT", SqlDbType.Float, DISCOUNT, cmd);
+                    addSqlParam("@QUANTITY", SqlDbType.Int, QUANTITY, cmd);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
-                    
-                    Console.WriteLine("erro pre loop read");
-                    try { 
-                    Order order = ReadOrder(rdr);
-                        Console.WriteLine("order received with success: " + order);
-                    }
-                    catch (Exception erro) {
-                    
-                        Console.WriteLine("Tryed read the result but: "+erro.Message);
-                    }
-                    
-                     /*
+
                     while (rdr.Read())
                     {
-                            Console.WriteLine("erro in loop read");
 
-                            if (rdr.FieldCount > 0) // Checking if the result set has two columns
-                            {
-                                Console.WriteLine("SUCCESS READER");
+                        if (rdr.FieldCount > 0)
+                        {
 
-                                var fieldCount = rdr.FieldCount;
-                                for (global::System.Int32 i = 0; i < fieldCount; i++)
-                            {
-                                Console.WriteLine(rdr.GetValue(i));
 
-                            }
-                           
+                            Order order = ReadOrder(rdr);
+                            Console.WriteLine("order received with success: " + order.orderInString());
+
 
                         }
-                        else if (rdr.IsDBNull(0))
-                            {
-                                Console.WriteLine("READER NULL");
+                        else { 
 
                             var fieldCount = rdr.FieldCount;
                             for (global::System.Int32 i = 0; i < fieldCount; i++)
                             {
-                                Console.WriteLine(rdr.GetValue(i));
+                                Console.WriteLine("Tryed read the result but: " + rdr.GetValue(i));
 
                             }
                         }
-                        else
-                            {
-                                Console.WriteLine("erro");
-                            }
-                    }*/
-                }
 
-                
+                    }
+
+                }
 
             }
             catch (SqlException ex)
