@@ -4,16 +4,14 @@ using System;
 using System.Data;
 using Microsoft.Identity.Client;
 using ProductiesNamesByModelYear;
-using AddOrder;
+using ConsoleApp1.SQL.Order;
+
 
 
 partial class Program
 {
     static void Main(string[] args)
     {
-        // Define connection string parameters
-        Int16 ModelYear = 2017;
-        char SqlFilterByOneYear = 'S';
 
        /* SP_ProductiesNamesByModelYear ProductiesNamesByModelYear = new SP_ProductiesNamesByModelYear();
         ProductiesNamesByModelYear.getData(ModelYear, SqlFilterByOneYear);
@@ -22,5 +20,10 @@ partial class Program
         SP_AddOrder addOrder = new SP_AddOrder();
         addOrder.setOrderInformation();
         addOrder.getData();
+
+        SP_DeleteOrder deleteOrder = new SP_DeleteOrder();
+        deleteOrder.setOrderInformation();
+        deleteOrder.deleteData();
+
     }
 }

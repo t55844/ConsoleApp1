@@ -1,13 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Global;
-using System.Xml.Serialization;
-using System.Runtime.Intrinsics.Arm;
 
 namespace SQL
 {

@@ -1,16 +1,13 @@
 ﻿using Microsoft.Data.SqlClient;
 using SQL;
 using System.Data;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 /*
 USE BikeStores
-
-SELECT * FROM ORDERS
-
-SELECT * FROM ORDER_ITEMS WHERE discount = 0.15
+SP_HELP ORDERS
+SELECT TOP 1 * FROM ORDERS ORDER BY ORDER_ID DESC
+SELECT * FROM STOCKS WHERE product_id = 1 AND store_id = 1
+SELECT TOP 1 * FROM ORDER_ITEMS ORDER BY ORDER_ID DESC
 
 delete from ORDERS WHERE order_date = '2024-09-12'
 delete from ORDER_ITEMS WHERE discount = 0.15
@@ -32,10 +29,11 @@ EXECUTE dbo.AddOrder @CUS_FIR_NAME = 'Debra',
 @DISCOUNT = 0.15,
 @QUANTITY = 1 */
 
-namespace AddOrder
+namespace ConsoleApp1.SQL.Order
 {
 
     public class SP_AddOrder : SqlAccess
+
     {
         private string procedureName = "AddOrder";
 
@@ -108,7 +106,7 @@ namespace AddOrder
             public decimal ListPrice { get; set; }
             public decimal Discount { get; set; }
 
-            public  string orderInString()
+            public string orderInString()
             {
                 return $"OrderId: {OrderId}, CustomerId: {CustomerId}, OrderStatus: {OrderStatus}, " +
                        $"OrderDate: {OrderDate}, RequiredDate: {RequiredDate?.ToString() ?? "null"}, " +
@@ -141,8 +139,8 @@ namespace AddOrder
                 CustomerId = reader.GetInt32(reader.GetOrdinal("customer_id")),
                 OrderStatus = reader.GetString(reader.GetOrdinal("order_status")),
                 OrderDate = reader.GetDateTime(reader.GetOrdinal("order_date")),
-                RequiredDate = reader.IsDBNull(reader.GetOrdinal("required_date")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("required_date")),
-                ShippedDate = reader.IsDBNull(reader.GetOrdinal("shipped_date")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipped_date")),
+                RequiredDate = reader.IsDBNull(reader.GetOrdinal("required_date")) ? null : reader.GetDateTime(reader.GetOrdinal("required_date")),
+                ShippedDate = reader.IsDBNull(reader.GetOrdinal("shipped_date")) ? null : reader.GetDateTime(reader.GetOrdinal("shipped_date")),
                 StoreId = reader.GetInt32(reader.GetOrdinal("store_id")),
                 StaffId = reader.GetInt32(reader.GetOrdinal("staff_id")),
                 ItemId = reader.GetInt32(reader.GetOrdinal("item_id")),
@@ -202,7 +200,7 @@ namespace AddOrder
             {
 
                 con.Open();
-                
+
                 using (SqlCommand cmd = getCmd(procedureName))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -240,10 +238,11 @@ namespace AddOrder
 
 
                         }
-                        else { 
+                        else
+                        {
 
                             var fieldCount = rdr.FieldCount;
-                            for (global::System.Int32 i = 0; i < fieldCount; i++)
+                            for (int i = 0; i < fieldCount; i++)
                             {
                                 Console.WriteLine("Tryed read the result but: " + rdr.GetValue(i));
 
@@ -263,6 +262,8 @@ namespace AddOrder
             {
                 Console.WriteLine($" useStorageProcedure AddOrder Error: {ex.Message}");
             }
+            con.Close();
+
 
         }
     }

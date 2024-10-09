@@ -80,6 +80,6 @@ BEGIN
     END
     ELSE
     BEGIN
-        THROW 50001, 'Insufficient Stock', 1;
+        SELECT 'Insufficient Stock'
     END
 END
